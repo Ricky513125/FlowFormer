@@ -15,7 +15,8 @@ _CN.critical_params = []
 
 _CN.transformer = 'percostformer3'
 ### change the path here
-_CN.restore_ckpt = "logs/PATH-TO-FINAL-FILE/final"
+# _CN.restore_ckpt = "logs/PATH-TO-FINAL-FILE/final"
+_CN.restore_ckpt = "/mnt/ssd2/lingyu/FlowFormer/checkpoints/things.pth"
 
 _CN.percostformer3 = CN()
 _CN.percostformer3.pe = 'linear'

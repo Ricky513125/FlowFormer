@@ -25,6 +25,9 @@ import imageio
 import itertools
 
 TRAIN_SIZE = [432, 960]
+# IMAGE_SIZE = [540, 960]  # Things 数据集的默认尺寸
+# TRAIN_SIZE = [288, 960]  # 你可以调整为合适的 Patch 大小
+
 
 class InputPadder:
     """ Pads images such that dimensions are divisible by 8 """
@@ -296,6 +299,55 @@ def validate_sintel(model, sigma=0.05):
 
     return results
 
+@torch.no_grad()
+def validate_things(model, sigma=0.05):
+    """ Perform validation using the FlyingThings3D (train) split """
+
+    IMAGE_SIZE = [540, 960]  # Things 数据集的默认尺寸
+    TRAIN_SIZE = [432, 960]  # 你可以调整为合适的 Patch 大小
+
+    hws = compute_grid_indices(IMAGE_SIZE, TRAIN_SIZE)
+    weights = compute_weight(hws, IMAGE_SIZE, TRAIN_SIZE, sigma)
+
+    model.eval()
+    val_dataset = datasets.FlyingThings3D(split='training')  # 这里需要你在 datasets 里添加支持
+
+    epe_list = []
+    for val_id in range(len(val_dataset)):
+        image1, image2, flow_gt, _ = val_dataset[val_id]
+        image1 = image1[None].cuda()
+        image2 = image2[None].cuda()
+
+        flows = 0
+        flow_count = 0
+
+        for idx, (h, w) in enumerate(hws):
+            image1_tile = image1[:, :, h:h+TRAIN_SIZE[0], w:w+TRAIN_SIZE[1]]
+            image2_tile = image2[:, :, h:h+TRAIN_SIZE[0], w:w+TRAIN_SIZE[1]]
+
+            flow_pre, _ = model(image1_tile, image2_tile)
+
+            padding = (w, IMAGE_SIZE[1]-w-TRAIN_SIZE[1], h, IMAGE_SIZE[0]-h-TRAIN_SIZE[0], 0, 0)
+            flows += F.pad(flow_pre * weights[idx], padding)
+            flow_count += F.pad(weights[idx], padding)
+
+        flow_pre = flows / flow_count
+        flow_pre = flow_pre[0].cpu()
+
+        epe = torch.sum((flow_pre - flow_gt)**2, dim=0).sqrt()
+        epe_list.append(epe.view(-1).numpy())
+
+    epe_all = np.concatenate(epe_list)
+    epe = np.mean(epe_all)
+    px1 = np.mean(epe_all < 1)
+    px3 = np.mean(epe_all < 3)
+    px5 = np.mean(epe_all < 5)
+
+    print("Validation (Things) EPE: %f, 1px: %f, 3px: %f, 5px: %f" % (epe, px1, px3, px5))
+    return {'things-epe': epe}
+
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', help='load model')
@@ -316,6 +368,9 @@ if __name__ == '__main__':
         cfg = get_submission_cfg()
     elif args.eval == 'kitti_validation':
         exp_func = validate_kitti
+        cfg = get_submission_cfg()
+    elif args.eval == 'things_validation':
+        exp_func = validate_things
         cfg = get_submission_cfg()
     else:
         print(f"EROOR: {args.eval} is not valid")
