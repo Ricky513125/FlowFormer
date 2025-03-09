@@ -22,7 +22,7 @@ def create_frame_pairs(input_folder, output_folder):
 
         # 创建相邻帧对
         for i in range(len(frames) - 1):
-            pair_folder = os.path.join(output_folder, f"pair_{i:05d}")
+            pair_folder = os.path.join(video_output_folder, f"pair_{i:05d}")
             os.makedirs(pair_folder, exist_ok=True)
 
             # 获取相邻的两帧
