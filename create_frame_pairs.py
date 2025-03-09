@@ -35,27 +35,8 @@ if __name__ == "__main__":
 # warnings.filterwarnings('ignore')
 #
 # # save images
-# def save_imgs(cap, start, end, file_name, dim=224):
-#     # if not os.path.isdir('./vid_frames_%d' % dim):
-#     #     os.mkdir('./vid_frames_%d' % dim)
-#     # path = os.path.join('./vid_frames_%d' % dim, file_name)
-#     if not os.path.isdir('/mnt/ssd2/lingyu/Tennis/vid_frames_%d' % dim):
-#         os.mkdir('/mnt/ssd2/lingyu/Tennis/vid_frames_%d' % dim)
-#     path = os.path.join('/mnt/ssd2/lingyu/Tennis/vid_frames_%d' % dim, file_name)
-#     if not os.path.isdir(path):
-#         os.mkdir(path)
-#     count = 0
-#     cap.set(1, start)
-#     for t in range(start, end):
-#         # frame_path = './vid_frames_%d/%s/%06d.jpg' % (dim, file_name, count)
-#         frame_path = '/mnt/ssd2/lingyu/Tennis/vid_frames_%d/%s/%06d.jpg' % (dim, file_name, count)
-#         # if not os.path.exists(frame_path):
-#         _, frame = cap.read()
-#         H, W, _ = frame.shape
-#         resized = cv2.resize(frame, (W * dim // H, dim))
-#         cv2.imwrite(frame_path, resized)
-#         count += 1
-#
+
+
 # data_name = ['train', 'val', 'test']
 # dim = 224
 # for i, name in enumerate(data_name):
