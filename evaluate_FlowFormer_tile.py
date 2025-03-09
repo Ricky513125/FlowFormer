@@ -189,6 +189,76 @@ def create_kitti_submission(model, output_path='kitti_submission', sigma=0.05):
         imageio.imwrite(f'vis_kitti_3patch/image/{test_id}_1.png', image2[0].cpu().permute(1, 2, 0).numpy())
 
 @torch.no_grad()
+def create_things_submission(model, output_path='things_submission', sigma=0.05):
+    """ Create submission for the FlyingThings3D dataset """
+
+    IMAGE_SIZE = [540, 960]  # Things数据集的默认尺寸
+    TRAIN_SIZE = [432, 960]  # 与其他数据集的尺寸一致
+
+    print(f"output path: {output_path}")
+    print(f"image size: {IMAGE_SIZE}")
+    print(f"training size: {TRAIN_SIZE}")
+
+    # 计算网格索引和权重
+    hws = compute_grid_indices(IMAGE_SIZE, TRAIN_SIZE)
+    weights = compute_weight(hws, IMAGE_SIZE, TRAIN_SIZE, sigma)
+
+    model.eval()
+    test_dataset = datasets.FlyingThings3D(split='test')  # 获取Things3D数据集
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    for test_id in range(len(test_dataset)):
+        image1, image2, (sequence, frame) = test_dataset[test_id]
+        new_shape = image1.shape[1:]
+        if new_shape[1] != IMAGE_SIZE[1]:  # 如果宽度不一致，调整图像尺寸
+            print(f"replace {IMAGE_SIZE} with {new_shape}")
+            IMAGE_SIZE[0] = new_shape[0]
+            IMAGE_SIZE[1] = new_shape[1]
+            hws = compute_grid_indices(IMAGE_SIZE, TRAIN_SIZE)
+            weights = compute_weight(hws, IMAGE_SIZE, TRAIN_SIZE, sigma)
+
+        # Padding和图像处理
+        padder = InputPadder(image1.shape)
+        image1, image2 = padder.pad(image1[None].cuda(), image2[None].cuda())
+
+        flows = 0
+        flow_count = 0
+
+        # 按照网格进行处理
+        for idx, (h, w) in enumerate(hws):
+            image1_tile = image1[:, :, h:h + TRAIN_SIZE[0], w:w + TRAIN_SIZE[1]]
+            image2_tile = image2[:, :, h:h + TRAIN_SIZE[0], w:w + TRAIN_SIZE[1]]
+            flow_pre, _ = model(image1_tile, image2_tile)
+
+            padding = (w, IMAGE_SIZE[1] - w - TRAIN_SIZE[1], h, IMAGE_SIZE[0] - h - TRAIN_SIZE[0], 0, 0)
+            flows += F.pad(flow_pre * weights[idx], padding)
+            flow_count += F.pad(weights[idx], padding)
+
+        flow_pre = flows / flow_count
+        flow_pre = padder.unpad(flow_pre[0]).cpu().numpy()
+
+        # 将结果保存为 .npy 文件
+        output_filename = os.path.join(output_path, f'{sequence}_frame{frame:04d}.npy')
+        if not os.path.exists(os.path.dirname(output_filename)):
+            os.makedirs(os.path.dirname(output_filename))
+
+        np.save(output_filename, flow_pre)  # 保存为 .npy 文件
+
+        # 生成光流图像用于可视化
+        flow_img = flow_viz.flow_to_image(flow_pre)
+        image = Image.fromarray(flow_img)
+        if not os.path.exists(f'vis_things_3d/flow'):
+            os.makedirs(f'vis_things_3d/flow')
+            os.makedirs(f'vis_things_3d/image')
+
+        image.save(f'vis_things_3d/flow/{test_id}.png')
+        imageio.imwrite(f'vis_things_3d/image/{test_id}_0.png', image1[0].cpu().permute(1, 2, 0).numpy())
+        imageio.imwrite(f'vis_things_3d/image/{test_id}_1.png', image2[0].cpu().permute(1, 2, 0).numpy())
+
+
+@torch.no_grad()
 def validate_kitti(model, sigma=0.05):
     IMAGE_SIZE = [376, 1242]
     TRAIN_SIZE = [288, 960]
@@ -303,14 +373,14 @@ def validate_sintel(model, sigma=0.05):
 def validate_things(model, sigma=0.05):
     """ Perform validation using the FlyingThings3D (train) split """
 
-    IMAGE_SIZE = [540, 960]  # Things 数据集的默认尺寸
-    TRAIN_SIZE = [432, 960]  # 你可以调整为合适的 Patch 大小
+    IMAGE_SIZE = [540, 960]  # Things' default size
+    TRAIN_SIZE = [432, 960]  # change to the same size as others
 
     hws = compute_grid_indices(IMAGE_SIZE, TRAIN_SIZE)
     weights = compute_weight(hws, IMAGE_SIZE, TRAIN_SIZE, sigma)
 
     model.eval()
-    val_dataset = datasets.FlyingThings3D(split='training')  # 这里需要你在 datasets 里添加支持
+    val_dataset = datasets.FlyingThings3D(split='training')  #
 
     epe_list = []
     for val_id in range(len(val_dataset)):

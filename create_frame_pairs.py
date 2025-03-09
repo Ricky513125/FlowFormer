@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 
 def create_frame_pairs(input_folder, output_folder):
-    """ 创建相邻帧对（frame1.png 和 frame2.png） """
+    """ create neighbor frame pair（frame1.png and frame2.png） """
     video_folders = sorted(glob.glob(os.path.join(input_folder, "*")))
 
     os.makedirs(output_folder, exist_ok=True)
@@ -14,7 +14,7 @@ def create_frame_pairs(input_folder, output_folder):
         frames = sorted(glob.glob(os.path.join(video_folder, "*.png")))
 
         if len(frames) < 2:
-            continue  # 跳过小于 2 帧的视频片段
+            continue  # skip if less than 2 frames
 
         video_name = os.path.basename(video_folder)
 
