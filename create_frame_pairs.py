@@ -1,6 +1,7 @@
 import os
 import glob
 from shutil import copyfile
+from tqdm import tqdm
 
 
 def create_frame_pairs(input_folder, output_folder):
