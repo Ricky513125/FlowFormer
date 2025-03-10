@@ -9,7 +9,7 @@ def create_frame_pairs(input_folder, output_folder):
 
     os.makedirs(output_folder, exist_ok=True)
 
-    for video_folder in video_folders:
+    for video_folder in video_folders[]:
         frames = sorted(glob.glob(os.path.join(video_folder, "*.jpg")))
 
         if len(frames) < 2:
