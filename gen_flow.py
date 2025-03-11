@@ -6,8 +6,8 @@ from PIL import Image
 import imageio
 import argparse
 from core.FlowFormer import build_flowformer
-from utils.utils import InputPadder
-from utils import flow_viz
+from core.utils.utils import InputPadder
+from core.utils import flow_viz
 
 
 @torch.no_grad()
