@@ -87,7 +87,7 @@ if __name__ == "__main__":
     # cfg = None
     cfg = get_submission_cfg()
     cfg.update(vars(args))  # 把 argparse 解析的参数加进去
-    model = torch.nn.DataParallel(build_flowformer({}))
+    model = torch.nn.DataParallel(build_flowformer(cfg))
     model.load_state_dict(torch.load(args.model))
     model.cuda()
     model.eval()
