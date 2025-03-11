@@ -31,6 +31,7 @@ def compute_flow(model, image1_path, image2_path):
 @torch.no_grad()
 def process_videos(input_root, output_root, model):
     """ 遍历输入文件夹，处理所有的视频和pair文件夹 """
+    # cn
     for video_folder in sorted(os.listdir(input_root)):
         video_path = os.path.join(input_root, video_folder)
         if not os.path.isdir(video_path):
@@ -62,6 +63,7 @@ def process_videos(input_root, output_root, model):
             flow_image.save(os.path.join(output_video_path, f"{pair_folder}.png"))
 
             print(f"Processed {pair_path}, saved results to {output_video_path}")
+        break
 
 
 if __name__ == "__main__":
