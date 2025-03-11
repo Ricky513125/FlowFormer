@@ -5,6 +5,16 @@ import numpy as np
 from PIL import Image
 import imageio
 import argparse
+import argparse
+import os
+import time
+import numpy as np
+import torch
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+from configs.submissions import get_cfg as get_submission_cfg
+from core.utils.misc import process_cfg
+# import datasets
 from core.FlowFormer import build_flowformer
 from core.utils.utils import InputPadder
 from core.utils import flow_viz
@@ -74,6 +84,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # 加载模型
+    # cfg = None
+    cfg = get_submission_cfg()
+    cfg.update(vars(args))  # 把 argparse 解析的参数加进去
     model = torch.nn.DataParallel(build_flowformer({}))
     model.load_state_dict(torch.load(args.model))
     model.cuda()

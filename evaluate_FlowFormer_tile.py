@@ -426,7 +426,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     exp_func = None
-    cfg = None
+
     if args.eval == 'sintel_submission':
         exp_func = create_sintel_submission
         cfg = get_submission_cfg()
