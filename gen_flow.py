@@ -68,9 +68,9 @@ def process_videos(input_root, output_root, model):
             np.save(npy_output, flow)
 
             # 生成光流图像并保存
-            flow_img = flow_viz.flow_to_image(flow)
-            flow_image = Image.fromarray(flow_img)
-            flow_image.save(os.path.join(output_video_path, f"{pair_folder}.png"))
+            # flow_img = flow_viz.flow_to_image(flow)
+            # flow_image = Image.fromarray(flow_img)
+            # flow_image.save(os.path.join(output_video_path, f"{pair_folder}.png"))
 
             print(f"Processed {pair_path}, saved results to {output_video_path}")
         break
