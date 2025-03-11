@@ -68,7 +68,13 @@ def process_videos(input_root, output_root, model):
             np.save(npy_output, flow)
 
             # 生成光流图像并保存
-            print("Flow shape:", flow.shape)
+            # 确保 `flow` 是 numpy 数组
+            if isinstance(flow, torch.Tensor):
+                flow = flow.cpu().numpy()
+
+            # 修正 shape: 从 [2, H, W] 变成 [H, W, 2]
+            if flow.shape[0] == 2:
+                flow = flow.transpose(1, 2, 0)
             flow_img = flow_viz.flow_to_image(flow)
 
             flow_image = Image.fromarray(flow_img)

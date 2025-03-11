@@ -43,6 +43,9 @@ def process_videos(input_root, output_root, model):
     """ 遍历输入文件夹，处理所有的视频和pair文件夹 """
     cnt = 0
     for video_folder in sorted(os.listdir(input_root)):
+        cnt+=1
+        if cnt < 3540:
+            continue
         video_path = os.path.join(input_root, video_folder)
         if not os.path.isdir(video_path):
             continue
@@ -74,7 +77,7 @@ def process_videos(input_root, output_root, model):
 
             # print(f"Processed {pair_path}, saved results to {output_video_path}")
         # break
-        cnt+=1
+        # cnt+=1
         print(cnt)
     print("Finished!")
 
