@@ -25,7 +25,7 @@ def compute_flow(model, image1_path, image2_path):
     """ 计算两张图片之间的光流 """
 
     # **获取已处理的完整视频文件夹**
-    processed_videos = set(os.listdir(output_root))
+    # processed_videos = set(os.listdir(output_root))
     image1 = imageio.imread(image1_path)
     image2 = imageio.imread(image2_path)
 
