@@ -84,8 +84,9 @@ def process_videos(input_root, output_root, model):
         # break
         cnt+=1
         print(cnt)
-        if cnt == 5:
-            break
+        break
+        # if cnt == 5:
+        #     break
     print("Finished!")
 
 
