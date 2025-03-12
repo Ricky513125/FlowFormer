@@ -44,7 +44,7 @@ def process_videos(input_root, output_root, model):
     cnt = 0
     for video_folder in sorted(os.listdir(input_root)):
         cnt+=1
-        if cnt < 4887:
+        if cnt < 5091:
             # skip 4888 as it always fail in the software
             continue
         video_path = os.path.join(input_root, video_folder)
