@@ -23,6 +23,9 @@ from core.utils import flow_viz
 @torch.no_grad()
 def compute_flow(model, image1_path, image2_path):
     """ 计算两张图片之间的光流 """
+
+    # **获取已处理的完整视频文件夹**
+    processed_videos = set(os.listdir(output_root))
     image1 = imageio.imread(image1_path)
     image2 = imageio.imread(image2_path)
 
@@ -42,11 +45,19 @@ def compute_flow(model, image1_path, image2_path):
 def process_videos(input_root, output_root, model):
     """ 遍历输入文件夹，处理所有的视频和pair文件夹 """
     cnt = 0
+    # **获取已处理的完整视频文件夹**
+    processed_videos = set(os.listdir(output_root))
+
     for video_folder in sorted(os.listdir(input_root)):
-        cnt+=1
-        if cnt < 5091:
-            # skip 4888 as it always fail in the software
+        cnt += 1
+        if video_folder in processed_videos:
+            print(f"Skipping {video_folder}, already processed.")
             continue
+
+
+        # if cnt < 5091:
+        #     # skip 4888 as it always fail in the software
+        #     continue
         video_path = os.path.join(input_root, video_folder)
         if not os.path.isdir(video_path):
             continue
