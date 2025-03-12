@@ -64,8 +64,8 @@ def process_videos(input_root, output_root, model):
             flow = compute_flow(model, frame1_path, frame2_path)
 
             # 保存 .npy 文件
-            npy_output = os.path.join(output_video_path, f"{pair_folder}.npy")
-            np.save(npy_output, flow)
+            # npy_output = os.path.join(output_video_path, f"{pair_folder}.npy")
+            # np.save(npy_output, flow)
 
             # 生成光流图像并保存
             # 确保 `flow` 是 numpy 数组
@@ -84,7 +84,8 @@ def process_videos(input_root, output_root, model):
         # break
         cnt+=1
         print(cnt)
-        break
+        if cnt == 5:
+            break
     print("Finished!")
 
 
